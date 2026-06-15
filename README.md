@@ -4,6 +4,6 @@
 3. Подставить содержимое `cat ~/.ssh/id_rsa.pub` вместо публичного ключа пользователя developer в inventory/group_vars/all.yml
 4. Запустить плейбук `ansible-playbook init.yml`
 5. Запустить плейбук ещё раз, чтобы убедиться в идемпотентности `ansible-playbook init.yml`
-6. Подключиться по ssh `ssh developer@127.0.0.1 -p 2222` (пароль: developer), чтобы убедиться, что developer использует zsh с omz
+6. Подключиться по ssh `ssh developer@127.0.0.1 -p 2222 -i ~/.ssh/id_rsa` (пароль: developer), чтобы убедиться, что developer использует zsh с omz
 
 Спасибо!
