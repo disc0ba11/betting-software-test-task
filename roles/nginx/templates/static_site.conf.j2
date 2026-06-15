@@ -1,0 +1,21 @@
+server {
+    listen 80 default_server;
+    server_name _;
+
+    access_log /var/log/nginx/static_access.log;
+    error_log /var/log/nginx/static_error.log;
+
+    # Gzip for static assets
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml;
+
+    location /images/ {
+        alias {{ static_root }}/;
+        autoindex on;
+        expires 1h;
+        add_header Cache-Control "public";
+    }
+}

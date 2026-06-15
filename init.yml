@@ -1,0 +1,11 @@
+---
+- name: Initial configuration
+  hosts: static_server
+  become: true
+  roles:
+    - role: packages
+    - role: users
+    - role: zsh
+    - role: ssh
+    - role: nginx
+    - role: static

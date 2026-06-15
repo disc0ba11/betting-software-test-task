@@ -1,0 +1,13 @@
+---
+- name: Harden SSH configuration
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^{{ item.key }} "
+    line: "{{ item.key }} {{ item.value }}"
+    state: present
+  loop:
+    - { key: "PermitRootLogin", value: "no" }
+    - { key: "PermitEmptyPasswords", value: "no" }
+    - { key: "LogLevel", value: "VERBOSE" }
+    - { key: "X11Forwarding", value: "no" }
+  notify: Reload sshd configuration

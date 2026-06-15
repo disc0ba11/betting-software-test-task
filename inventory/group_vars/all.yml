@@ -1,0 +1,31 @@
+custom_groups:
+  - developers
+  - webadmins
+
+users:
+  - name: developer
+    shell: /bin/zsh
+    state: present
+    password: "{{ 'developer' | password_hash('sha512') }}"
+    ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDJlhmHRS+Oxu4T5W2zIxWKXfaGGpFu5d5G9obayhgSaAlbUoI8FuKxo8wdkTMKyxeuNjN6TABkJ97cpBjwCoonuDVXETXztsb6NcH4Ce6XZsvGhFI01hYk1SZeKziTHakxlkucbLZPuUNhPJtgIeemY1/yoM3i3Tbo6TDhz5RlTQB/X7FsfRODr5c109bCKSAWqfBxP/WqZWpE55D+ydCiYNp6TGcYLx+yeecir71FqOgC0xZcyLl5apmqG3g3KKp//NR7FLcrC9D/K6QFuJ782IE9L09v/3OT83++7kzik4Y01MSKZaGgsuXgcydb+mP/49hc98e2gGxX3n9+WVDGjTJwGbka28zfMpwCBiT6WyNQBWTEF6/iojodEYPIZQ0U0/2pVBim6LqQm9kfqWN/cTCwVSKpQOy/wYfnkO9cnYDNNPATFLjThsAT6c6QdvDqHIiyddYmnOxzKu863iQvLNIfK/KyOZ+34V0wDsquaM7Ij1BGh7CKvIgk8PKx9As= developer@local"
+    groups:
+      - sudo
+      - developers
+  - name: webadmin
+    shell: /bin/bash
+    state: present
+    password: "{{ 'webadmin' | password_hash('sha512') }}"
+    ssh_key: ""
+    groups:
+      - www-data
+      - webadmins
+
+packages_to_install:
+  - htop
+  - ncdu
+  - git
+  - nano
+  - curl
+  - unzip
+
+static_root: /usr/share/nginx/html/images

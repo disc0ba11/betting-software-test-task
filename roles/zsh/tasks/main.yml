@@ -1,0 +1,56 @@
+---
+- name: Ensure zsh and git are installed
+  ansible.builtin.apt:
+    name: [zsh, git]
+    state: present
+
+- name: Get all user home directories
+  ansible.builtin.getent:
+    database: passwd
+
+- name: Configure git to trust all directories
+  ansible.builtin.command: git config --global --add safe.directory '*'
+  changed_when: false
+
+- name: Clone Oh-My-Zsh repository
+  ansible.builtin.git:
+    repo: https://github.com/ohmyzsh/ohmyzsh.git
+    dest: "{{ ansible_facts.getent_passwd[item.name][4] }}/.oh-my-zsh"
+    version: master
+    update: no
+  loop: "{{ users }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: item.shell is match('.*zsh.*') and item.state == 'present'
+
+- name: Create .zshrc from template if missing
+  ansible.builtin.copy:
+    src: "{{ ansible_facts.getent_passwd[item.name][4] }}/.oh-my-zsh/templates/zshrc.zsh-template"
+    dest: "{{ ansible_facts.getent_passwd[item.name][4] }}/.zshrc"
+    remote_src: yes
+    force: no
+  loop: "{{ users }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: item.shell is match('.*zsh.*') and item.state == 'present'
+
+- name: Set ownership for .oh-my-zsh directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.getent_passwd[item.name][4] }}/.oh-my-zsh"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    recurse: yes
+  loop: "{{ users }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: item.shell is match('.*zsh.*') and item.state == 'present'
+
+- name: Set ownership for .zshrc file
+  ansible.builtin.file:
+    path: "{{ ansible_facts.getent_passwd[item.name][4] }}/.zshrc"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+  loop: "{{ users }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: item.shell is match('.*zsh.*') and item.state == 'present'

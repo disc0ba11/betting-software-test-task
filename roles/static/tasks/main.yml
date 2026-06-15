@@ -1,0 +1,9 @@
+---
+- name: Deploy static images
+  ansible.builtin.copy:
+    src: files/
+    dest: "{{ static_root }}/"
+    owner: www-data
+    group: www-data
+    mode: '0644'
+    directory_mode: '0755'

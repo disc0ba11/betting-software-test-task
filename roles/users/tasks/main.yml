@@ -1,0 +1,43 @@
+---
+- name: Ensure groups existence
+  ansible.builtin.group:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ custom_groups | default([]) }}"
+
+- name: Manage users
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    shell: "{{ item.shell | default('/bin/bash') }}"
+    password: "{{ item.password | default(omit) }}"
+    groups: "{{ item.groups | default([]) }}"
+    state: "{{ item.state | default('present') }}"
+    create_home: yes
+    append: yes
+    update_password: on_create
+  loop: "{{ users }}"
+  when: item.name is defined
+
+- name: Ensure .ssh directory has been created for users with keys
+  ansible.builtin.file:
+    path: "{{ user_home }}/.ssh"
+    state: directory
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0700'
+  loop: "{{ users }}"
+  when: item.state == 'present' and item.ssh_key is defined and item.ssh_key | length > 0
+  vars:
+    user_home: "{{ lookup('pipe', 'getent passwd ' + item.name + ' | cut -d: -f6') }}"
+
+- name: Deploy SSH authorized keys
+  ansible.builtin.copy:
+    content: "{{ item.ssh_key }}\n"
+    dest: "{{ user_home }}/.ssh/authorized_keys"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0600'
+  loop: "{{ users }}"
+  when: item.state == 'present' and item.ssh_key is defined and item.ssh_key | length > 0
+  vars:
+    user_home: "{{ lookup('pipe', 'getent passwd ' + item.name + ' | cut -d: -f6') }}"
